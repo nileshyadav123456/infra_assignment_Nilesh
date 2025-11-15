@@ -1,7 +1,12 @@
-variable "location" {}
-variable "resource_group_name" {}
-variable "subnet_map" { type = map(string) }
-variable "vm_count_per_subnet" { type = number }
-variable "admin_username" {}
-variable "admin_password" {}
-variable "tags" { type = map(string) }
+variable "sql_servers" {
+  type = map(object({
+    name                         = string
+    rg_name                      = string
+    location                     = string
+    version                      = string
+    administrator_login          = string
+    administrator_login_password = string
+    minimum_tls_version          = string
+    tags                         = optional(map(string))
+  }))
+}

@@ -27,20 +27,20 @@ module "compute" {
   vms        = var.vms
 }
 
-module "sql_server" {
-  depends_on = [ module.resource_group ]
-  source          = "../../modules/azurerm_sql_server"
-  
+module "sql_servers" {
+  depends_on  = [module.resource_group]
+  source      = "../../modules/azurerm_sql_server"
+  sql_servers = var.sql_servers
 }
 
 module "sql_database" {
-  depends_on  = [module.sql_server]
-  source      = "../../modules/azurerm_sql_database"
-
+  depends_on   = [module.sql_server]
+  source       = "../../modules/azurerm_sql_database"
+  sql_database = var.sql_database
 }
 
 module "storage_account" {
-   depends_on  = [resource_group]
-   source = "../../modules/azurerm_storage_account"
-
+  depends_on = [resource_group]
+  source     = "../../modules/azurerm_storage_account"
+  stas       = var.stas
 }

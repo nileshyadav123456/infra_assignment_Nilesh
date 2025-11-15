@@ -24,3 +24,6 @@ variable "network" {
 variable "public_ips" {}
 variable "key_vault" {}
 variable "vms" {}
+variable "sql_servers" {}
+variable "sql_database" {}
+variable "stas" {}

@@ -9,16 +9,15 @@ terraform {
 
 provider "azurerm" {
   features {}
-  subscription_id = ""
+  subscription_id = "f91191dd-7344-4f56-9504-6b05dc9c3eb5"
 }
 
 # Backend remote state storage  
 terraform {
-   backend "azurerm" {
-    resource_group_name  = "rg-tfstate"
-    storage_account_name = "tfstatestoreprod"
-    container_name       = "tfstate"
+  backend "azurerm" {
+    resource_group_name  = "practice-rg-001"
+    storage_account_name = "tfstatestgprod001"
     key                  = "prod.terraform.tfstate"
   }
-
 }
+

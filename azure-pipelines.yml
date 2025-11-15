@@ -2,15 +2,16 @@
    include:
      - main
      - feature/*
+     
 pool:
-  name: infra-pool
+  name: practice-pipeline-pool
 
 variables:
-  svc: 'pipelinesvc'
-  stgname: 'stgforall'
-  containername: 'mycontainer'
-  statefile: 'raman.tfstate'
-  workingDir: '$(System.DefaultWorkingDirectory)/environment/dev'
+  svc: 'practice-connection'
+  stgname: 'tfstatestgdev001'
+  containername: 'tfstate'
+  statefile: 'dev.terraform.tfstate'
+  workingDir: '$(System.DefaultWorkingDirectory)/env/dev'
 
 
 stages:
@@ -53,7 +54,7 @@ stages:
       - job: tfscanning
         displayName: scanning for code
         pool: 
-          name: infra-pool
+          name: practice-pipeline-pool
         steps:
           - task: tfsec@1
             inputs:
@@ -63,7 +64,7 @@ stages:
       - job: TfLint
         displayName: tflintforcode
         pool: 
-          name: infra-pool
+          name: practice-pipeline-pool
         steps:
           - task: CmdLine@2
             inputs:
@@ -79,12 +80,12 @@ stages:
         steps:
           - task: ManualValidation@1
             inputs:
-              notifyUsers: 'brijesh.zte@gmail.com'
+              notifyUsers: 'adhiraaj22@gmail.com'
      
       - job: TerraformApply
         displayName: Terraform Apply
         dependsOn: ManualValidation
-        pool: infra-pool
+        pool: practice-pipeline-pool
         steps:
           - task: TerraformTask@5
             inputs:

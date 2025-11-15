@@ -1,6 +1,9 @@
-variable "name" { type = string }
-variable "rg_name" { type = string }
-variable "location" { type = string }
-variable "container_name" { type = string }
-variable "create_app_container" { type = bool default = false }
-variable "app_container_name" { type = string default = "app" }
+variable "stas" {
+  type = map(object({
+    name                     = string
+    location                 = string
+    account_tier             = string
+    account_replication_type = string
+    tags                     = optional(map(string))
+  }))
+}

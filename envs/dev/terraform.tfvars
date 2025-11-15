@@ -98,3 +98,49 @@ vms = {
     }
   }
 }
+
+sql_servers = {
+  sql_server001 = {
+    name                         = "sql_server-dev-001"
+    rg_name                      = "rg-dev-001"
+    location                     = "centralindia"
+    version                      = "12.0"
+    administrator_login          = var.admin_username
+    administrator_login_password = var.admin_password
+    minimum_tls_version          = "1.2"
+
+    tags = {
+      env = "dev"
+    }
+  }
+}
+
+sql_database = {
+  sql_database001 = {
+    name         = "sql_database-dev-001"
+    server_id    = module.sql_server.server_id
+    collation    = "SQL_Latin1_General_CP1_CI_AS"
+    license_type = "LicenseIncluded"
+    max_size_gb  = "2"
+    sku_name     = "S0"
+    enclave_type = "VBS"
+
+    tags = {
+      env = "dev"
+    }
+  }
+}
+
+
+stas = {
+  sta001 = {
+    name                     = "stastate"
+    location                 = "centralindia"
+    rg_name                  = "rg-dev-001"
+    account_tier             = "Standard"
+    account_replication_type = "GRS"
+    tags = {
+      env = "dev"
+    }
+  }
+}

@@ -11,13 +11,12 @@
 # }
 
 resource "azurerm_storage_account" "sta" {
-  name                     = var.storageaccount_name
-  resource_group_name      = var.rg_name
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = "GRS"
+  for_each                 = var.stas
+  name                     = each.value.name
+  resource_group_name      = each.value.rg_name
+  location                 = each.value.location
+  account_tier             = each.value.account_tire
+  account_replication_type = each.value.account_replication_type
 
-  tags = {
-    environment = "staging"
-  }
+  tags = each.value.tags
 }
