@@ -1,5 +1,5 @@
 variable "network" {
-  type = map(obects({
+  type = map(object({
     name          = string
     location      = string
     rg_name       = string
