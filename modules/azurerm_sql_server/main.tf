@@ -4,8 +4,8 @@ resource "azurerm_mssql_server" "sql_servers" {
   resource_group_name          = each.value.rg_name
   location                     = each.value.location
   version                      = "12.0"
-  administrator_login          = each.value.administrator_login
-  administrator_login_password = each.value.administrator_login_password
+  administrator_login          = data.azurerm_key_vault_secret[each.key].sql_username
+  administrator_login_password = data.azurerm_key_vault_secret[each.key].sql_password
   minimum_tls_version          = "1.2"
 
   tags = each.value.tags
