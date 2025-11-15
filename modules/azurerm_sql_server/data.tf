@@ -9,3 +9,9 @@ data "azurerm_key_vault_secret" "sql_username" {
   name         = "sql-username"
   key_vault_id = data.azurerm_key_vault.kv[each.key].id
 }
+
+data "azurerm_key_vault_secret" "sql_password" {
+  for_each     = var.sql_servers
+  name         = "sql-password"
+  key_vault_id = data.azurerm_key_vault.kv[each.key].id
+}

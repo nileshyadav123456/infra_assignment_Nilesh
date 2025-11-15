@@ -4,11 +4,10 @@ variable "network" {
     location      = string
     rg_name       = string
     address_space = list(string)
-    tags          = optional(string)
-    subnets = optional(list(object({
+    tags          = optional(map(string))
+    subnets = list(object({
       name             = string
       address_prefixes = list(string)
-    }))) }
-
-  ))
+    }))
+  }))
 }

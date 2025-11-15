@@ -39,13 +39,11 @@ resource "azurerm_virtual_network" "virtual_network" {
   location            = each.value.location
   resource_group_name = each.value.rg_name
 
-
-  # dynamic creation of subnets
-  dynamic "subnets" {
+  dynamic "subnet" {
     for_each = each.value.subnets
     content {
-      name             = subnets.value.name
-      address_prefixes = subnets.value.address_prefixes
+      name             = subnet.value.name
+      address_prefixes = subnet.value.address_prefixes
     }
   }
 }

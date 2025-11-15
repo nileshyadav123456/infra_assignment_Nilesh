@@ -52,15 +52,18 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
+
 resource "azurerm_linux_virtual_machine" "vms" {
   for_each                        = var.vms
   name                            = each.value.vm_name
   resource_group_name             = each.value.rg_name
   location                        = each.value.location
   size                            = each.value.size
-  admin_username                  = data.azurerm_key_vault_secret[each.key].vm_username
-  admin_password                  = data.azurerm_key_vault_secret[each.key].vm_password
+
+  admin_username                  = data.azurerm_key_vault_secret.vm_username[each.key].value
+  admin_password                  = data.azurerm_key_vault_secret.vm_password[each.key].value
   disable_password_authentication = false
+
   network_interface_ids = [
     azurerm_network_interface.nic[each.key].id
   ]

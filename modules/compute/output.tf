@@ -1,4 +1,10 @@
-output "vm_ids" { value = { for k, v in azurerm_linux_virtual_machine.this : k => v.id } }
+output "vm_ids" {
+  value = { for k, v in azurerm_linux_virtual_machine.vms : k => v.id }
+}
+
 output "vm_private_ips" {
-  value = { for k, nic in azurerm_network_interface.this : k => nic.ip_configuration[0].private_ip_address }
+  value = {
+    for k, v in azurerm_network_interface.nic :
+    k => v.ip_configuration[0].private_ip_address
+  }
 }

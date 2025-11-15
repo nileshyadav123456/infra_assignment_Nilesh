@@ -22,9 +22,14 @@ module "key_vault" {
 }
 
 module "compute" {
-  depends_on = [module.resource_group, module.network, module.public_ip, module.key_vault]
-  source     = "../../modules/compute"
-  vms        = var.vms
+  depends_on = [
+    module.resource_group,
+    module.network,
+    module.public_ip,
+    module.key_vault
+  ]
+  source = "../../modules/compute"
+  vms    = var.vms
 }
 
 module "sql_servers" {
@@ -34,13 +39,25 @@ module "sql_servers" {
 }
 
 module "sql_database" {
-  depends_on   = [module.sql_server]
-  source       = "../../modules/azurerm_sql_database"
-  sql_database = var.sql_database
+  depends_on = [module.sql_servers]
+  source     = "../../modules/azurerm_sql_database"
+
+  sql_database = {
+    sql_database001 = {
+      name         = "sql_database-dev-001"
+      server_id    = module.sql_servers.server_id
+      collation    = "SQL_Latin1_General_CP1_CI_AS"
+      license_type = "LicenseIncluded"
+      max_size_gb  = "2"
+      sku_name     = "S0"
+      enclave_type = "VBS"
+      tags         = { env = "dev" }
+    }
+  }
 }
 
 module "storage_account" {
-  depends_on = [resource_group]
+  depends_on = [module.resource_group]
   source     = "../../modules/azurerm_storage_account"
   stas       = var.stas
 }

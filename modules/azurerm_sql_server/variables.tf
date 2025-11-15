@@ -1,12 +1,9 @@
 variable "sql_servers" {
   type = map(object({
-    name                         = string
-    rg_name                      = string
-    location                     = string
-    version                      = string
-    administrator_login          = string
-    administrator_login_password = string
-    minimum_tls_version          = string
-    tags                         = optional(map(string))
+    name         = string
+    rg_name      = string
+    location     = string
+    kv_name      = string
+    tags         = optional(map(string))
   }))
 }

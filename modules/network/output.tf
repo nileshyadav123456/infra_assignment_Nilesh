@@ -1,4 +1,10 @@
-output "vnet_id" { value = azurerm_virtual_network.virtual_network.id }
+output "vnet_ids" {
+  value = { for k, v in azurerm_virtual_network.virtual_network : k => v.id }
+}
+
 output "subnet_ids" {
-  value = { for k, s in azurerm_subnet.subnets : k => s.id }
+  value = {
+    for k, v in azurerm_virtual_network.virtual_network :
+    k => [for s in v.subnet : s.id]
+  }
 }

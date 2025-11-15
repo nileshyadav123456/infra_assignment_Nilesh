@@ -3,7 +3,6 @@ variable "sql_database" {
     name         = string
     server_id    = string
     collation    = string
-    version      = string
     license_type = string
     max_size_gb  = string
     sku_name     = string
