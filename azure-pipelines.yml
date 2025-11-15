@@ -1,3 +1,4 @@
+trigger:
  branches:
    include:
      - main
@@ -11,14 +12,14 @@ variables:
   stgname: 'tfstatestgdev001'
   containername: 'tfstate'
   statefile: 'dev.terraform.tfstate'
-  workingDir: '$(System.DefaultWorkingDirectory)/env/dev'
+  workingDir: '$(System.DefaultWorkingDirectory)/envs/dev'
 
 
 stages:
   - stage: Build
     jobs:
       - job: terraforminitandplan
-        displayName: terraform init
+        displayName: terraform init, validate & plan
         steps:
           - task: TerraformInstaller@1
             inputs:
@@ -51,16 +52,6 @@ stages:
     dependsOn: Build
     displayName: scanning
     jobs:
-      - job: tfscanning
-        displayName: scanning for code
-        pool: 
-          name: practice-pipeline-pool
-        steps:
-          - task: tfsec@1
-            inputs:
-              version: 'v1.26.0'
-              dir: '$(System.DefaultWorkingDirectory)/environment/dev'
-      
       - job: TfLint
         displayName: tflintforcode
         pool: 
