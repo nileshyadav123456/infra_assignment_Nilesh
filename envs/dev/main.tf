@@ -1,16 +1,18 @@
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
+module "resource_group" {
+  source = "../../modules/azurerm_resource_group"
+  rgs = var.rgs
 }
 
 module "network" {
-  source              = "./modules/network"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
-  vnet_name           = var.vnet_name
-  address_space       = var.address_space
-  subnets             = var.subnets
-  nsg_name            = var.nsg_name
+ depends_on = [ module.resource_group ]
+ source = "../../modules/network"
+ network = var.network
+}
+
+module "public_ip" {
+  depends_on = [ module.resource_group ]
+  source     = "../../modules/azurerm_public_ip"
+  public_ips = var.public_ips
 }
 
 module "compute" {

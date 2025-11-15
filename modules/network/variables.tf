@@ -12,9 +12,3 @@ variable "network" {
 
   ))
 }
-
-# variable "nsg" {
-#   type = optional(list(object({
-#     name = string
-#   })))
-# } 
