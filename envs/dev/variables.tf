@@ -22,3 +22,5 @@ variable "network" {
 }
 
 variable "public_ips" {}
+variable "key_vault" {}
+variable "vms" {}

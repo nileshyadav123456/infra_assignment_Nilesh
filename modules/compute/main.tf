@@ -1,41 +1,69 @@
-# Public IP (optional)
-resource "azurerm_public_ip" "this" {
-  count               = var.public_ip ? 1 : 0
-  name                = "${var.name}-pip"
-  resource_group_name = var.rg_name
-  location            = var.location
-  allocation_method   = "Static"
-  sku                 = "Standard"
-}
+# resource "azurerm_network_interface" "example" {
+#   name                = "example-nic"
+#   location            = azurerm_resource_group.example.location
+#   resource_group_name = azurerm_resource_group.example.name
 
-resource "azurerm_network_interface" "this" {
-  for_each = { for vm in var.vms : vm.name => vm }
-  name                = "${each.key}-nic"
-  location            = var.location
-  resource_group_name = var.rg_name
+#   ip_configuration {
+#     name                          = "internal"
+#     subnet_id                     = azurerm_subnet.example.id
+#     private_ip_address_allocation = "Dynamic"
+#   }
+# }
+
+# resource "azurerm_linux_virtual_machine" "example" {
+#   name                = "example-machine"
+#   resource_group_name = azurerm_resource_group.example.name
+#   location            = azurerm_resource_group.example.location
+#   size                = "Standard_F2"
+#   admin_username      = "adminuser"
+#   network_interface_ids = [
+#     azurerm_network_interface.example.id,
+#   ]
+
+#   admin_ssh_key {
+#     username   = "adminuser"
+#     public_key = file("~/.ssh/id_rsa.pub")
+#   }
+
+#   os_disk {
+#     caching              = "ReadWrite"
+#     storage_account_type = "Standard_LRS"
+#   }
+
+#   source_image_reference {
+#     publisher = "Canonical"
+#     offer     = "0001-com-ubuntu-server-jammy"
+#     sku       = "22_04-lts"
+#     version   = "latest"
+#   }
+# }
+
+resource "azurerm_network_interface" "nic" {
+  for_each            = var.vms
+  name                = each.value.nic_name
+  location            = each.value.location
+  resource_group_name = each.value.rg_name
 
   ip_configuration {
-    name                          = "ipconfig"
-    subnet_id                     = var.subnet_id
+    name                          = "internal"
+    subnet_id                     = data.azurerm_subnet.subnet[each.key].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = length(var.public_ip && each.value.public_ip ? [1] : []) > 0 ? azurerm_public_ip.this[0].id : null
+    public_ip_address_id          = data.azurerm_public_ip.pip[each.key].id
   }
 }
 
-resource "azurerm_linux_virtual_machine" "this" {
-  for_each            = azurerm_network_interface.this
-  name                = each.key
-  resource_group_name = var.rg_name
-  location            = var.location
-  size                = var.vm_size
-  admin_username      = var.admin_username
-
-  network_interface_ids = [each.value.id]
-
-  admin_ssh_key {
-    username   = var.admin_username
-    public_key = var.ssh_public_key
-  }
+resource "azurerm_linux_virtual_machine" "vms" {
+  for_each                        = var.vms
+  name                            = each.value.vm_name
+  resource_group_name             = each.value.rg_name
+  location                        = each.value.location
+  size                            = each.value.size
+  admin_username                  = data.azurerm_key_vault_secret[each.key].vm_username
+  admin_password                  = data.azurerm_key_vault_secret[each.key].vm_password
+  disable_password_authentication = false
+  network_interface_ids = [
+    azurerm_network_interface.nic[each.key].id
+  ]
 
   os_disk {
     caching              = "ReadWrite"
@@ -43,14 +71,9 @@ resource "azurerm_linux_virtual_machine" "this" {
   }
 
   source_image_reference {
-    publisher = var.image.publisher
-    offer     = var.image.offer
-    sku       = var.image.sku
-    version   = var.image.version
+    publisher = each.value.source_image_reference.publisher
+    offer     = each.value.source_image_reference.offer
+    sku       = each.value.source_image_reference.sku
+    version   = each.value.source_image_reference.version
   }
-
-  # Use custom_data for cloud-init / startup script
-  custom_data = base64encode(each.value.tags != null && can(each.value.tags["startup"]) ? file(each.value.tags["startup"]) : var.default_startup_script)
-
-  tags = merge(var.tags, { role = each.value.role })
 }

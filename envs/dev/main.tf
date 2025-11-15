@@ -1,27 +1,46 @@
 module "resource_group" {
   source = "../../modules/azurerm_resource_group"
-  rgs = var.rgs
+  rgs    = var.rgs
 }
 
 module "network" {
- depends_on = [ module.resource_group ]
- source = "../../modules/network"
- network = var.network
+  depends_on = [module.resource_group]
+  source     = "../../modules/network"
+  network    = var.network
 }
 
 module "public_ip" {
-  depends_on = [ module.resource_group ]
+  depends_on = [module.resource_group]
   source     = "../../modules/azurerm_public_ip"
   public_ips = var.public_ips
 }
 
+module "key_vault" {
+  depends_on = [module.resource_group]
+  source     = "../../modules/azurerm_key_vault"
+  key_vault  = var.key_vault
+}
+
 module "compute" {
-  source              = "./modules/compute"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.rg.name
-  subnet_map          = module.network.subnet_ids
-  vm_count_per_subnet = var.vm_count_per_subnet
-  admin_username      = var.admin_username
-  admin_password      = var.admin_password
-  tags = { Environment = var.environment }
+  depends_on = [module.resource_group, module.network, module.public_ip, module.key_vault]
+  source     = "../../modules/compute"
+  vms        = var.vms
+}
+
+module "sql_server" {
+  depends_on = [ module.resource_group ]
+  source          = "../../modules/azurerm_sql_server"
+  
+}
+
+module "sql_database" {
+  depends_on  = [module.sql_server]
+  source      = "../../modules/azurerm_sql_database"
+
+}
+
+module "storage_account" {
+   depends_on  = [resource_group]
+   source = "../../modules/azurerm_storage_account"
+
 }
