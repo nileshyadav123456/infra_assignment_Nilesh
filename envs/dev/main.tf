@@ -45,7 +45,7 @@ module "sql_database" {
     sql_database001 = merge(
       var.sql_database["sql_database001"],
       {
-        server_id = module.sql_servers.server_ids["sql_server001"]
+        server_id = module.sql_servers.server_id["sql_server001"]
       }
     )
   }
