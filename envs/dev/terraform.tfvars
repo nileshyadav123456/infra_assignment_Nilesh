@@ -103,7 +103,7 @@ vms = {
 
 sql_servers = {
   sql_server001 = {
-    name                = "sql_server-dev-001"
+    name                = "sql-server-dev-001"
     rg_name             = "rg-dev-001"
     location            = "centralindia"
     version             = "12.0"
@@ -117,7 +117,7 @@ sql_servers = {
 
 sql_database = {
   sql_database001 = {
-    name         = "sql_database-dev-001"
+    name         = "sql-database-dev-001"
     collation    = "SQL_Latin1_General_CP1_CI_AS"
     license_type = "LicenseIncluded"
     max_size_gb  = 2
