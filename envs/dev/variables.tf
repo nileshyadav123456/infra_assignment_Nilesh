@@ -74,6 +74,7 @@ variable "sql_servers" {
 variable "sql_database" {
   type = map(object({
     name         = string
+    server_id    = string
     collation    = string
     license_type = string
     max_size_gb  = string
@@ -82,6 +83,7 @@ variable "sql_database" {
     tags         = optional(map(string))
   }))
 }
+
 
 variable "stas" {
   type = map(object({

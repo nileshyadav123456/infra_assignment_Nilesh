@@ -120,6 +120,7 @@ sql_servers = {
 sql_database = {
   sql_database001 = {
     name         = "sql_database-dev-001"
+    server_id    = module.sql_servers.server_ids["sql_server001"]
     collation    = "SQL_Latin1_General_CP1_CI_AS"
     license_type = "LicenseIncluded"
     max_size_gb  = "2"

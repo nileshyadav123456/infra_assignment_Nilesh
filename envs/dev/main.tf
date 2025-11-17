@@ -39,16 +39,9 @@ module "sql_servers" {
 }
 
 module "sql_database" {
-  depends_on = [module.sql_servers]
-  source     = "../../modules/azurerm_sql_database"
-  sql_database = {
-    sql_database001 = merge(
-      var.sql_database["sql_database001"],
-      {
-        server_id = module.sql_servers.server_ids["sql_server001"]
-      }
-    )
-  }
+  depends_on   = [module.sql_servers]
+  source       = "../../modules/azurerm_sql_database"
+  sql_database = var.sql_database
 }
 
 module "storage_account" {
