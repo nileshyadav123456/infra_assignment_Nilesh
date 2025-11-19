@@ -5,3 +5,8 @@ variable "key_vault" {
     rg_name  = string
   }))
 }
+
+variable "vm_username" { type = string }
+variable "vm_password" { type = string }
+variable "sql_username" { type = string }
+variable "sql_password" { type = string }

@@ -31,7 +31,6 @@ network = {
   }
 }
 
-
 public_ips = {
   pip001 = {
     name                = "pip-dev-001"
@@ -63,7 +62,6 @@ key_vault = {
   }
 }
 
-
 vms = {
   vm001 = {
     nic_name    = "nic-f-vm-001"
@@ -74,7 +72,7 @@ vms = {
     pip_name    = "pip-dev-001"
     vm_name     = "f-vm-001"
     size        = "Standard_F2"
-    kv_name     = "kv-dev-mowgli-001"
+    kv_name     = "kv001"
     source_image_reference = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-jammy"
@@ -91,8 +89,7 @@ vms = {
     pip_name    = "pip-dev-002"
     vm_name     = "b-vm-001"
     size        = "Standard_F2"
-    kv_name     = "kv-dev-mowgli-001"
-
+    kv_name     = "kv001"
     source_image_reference = {
       publisher = "Canonical"
       offer     = "0001-com-ubuntu-server-jammy"
@@ -107,9 +104,7 @@ sql_servers = {
     name                = "sql-server-dev-001"
     rg_name             = "rg-dev-001"
     location            = "centralindia"
-    version             = "12.0"
-    minimum_tls_version = "1.2"
-    kv_name             = "kv-dev-mowgli-001"
+    kv_name             = "kv001"
     tags = {
       env = "dev"
     }
@@ -127,12 +122,9 @@ sql_database = {
     tags = {
       env = "dev"
     }
-    server_id = "" # leave blank, we will override in main.tf
+    server_id = ""
   }
 }
-
-
-
 
 stas = {
   sta001 = {

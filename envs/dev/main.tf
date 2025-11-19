@@ -18,7 +18,12 @@ module "public_ip" {
 module "key_vault" {
   depends_on = [module.resource_group]
   source     = "../../modules/azurerm_key_vault"
-  key_vault  = var.key_vault
+
+  key_vault    = var.key_vault
+  vm_username  = var.vm_username
+  vm_password  = var.vm_password
+  sql_username = var.sql_username
+  sql_password = var.sql_password
 }
 
 module "compute" {
@@ -30,19 +35,22 @@ module "compute" {
   ]
   source = "../../modules/compute"
   vms    = var.vms
+
+  key_vault_ids = module.key_vault.key_vault_ids
 }
 
 module "sql_servers" {
-  depends_on = [
-    module.resource_group,
-  module.key_vault]
+  depends_on = [module.resource_group, module.key_vault]
   source      = "../../modules/azurerm_sql_server"
   sql_servers = var.sql_servers
+
+  key_vault_ids = module.key_vault.key_vault_ids
 }
 
 module "sql_database" {
   depends_on = [module.sql_servers]
   source     = "../../modules/azurerm_sql_database"
+
   sql_database = {
     sql_database001 = merge(
       var.sql_database["sql_database001"],
