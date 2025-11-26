@@ -8,23 +8,25 @@ pool:
   name: practice-pipeline-pool
 
 variables:
-- group: terraform-secrets-dev
+- group: terraform-secrets-dev   # Contains vm/sql creds
 - name: svc
-  value: practice-connection
+  value: practice-connection     # Azure Service Connection
+- name: backendRg
+  value: practice-rg-001         # Storage Account RG
 - name: stgname
-  value: tfstatestgdev001
+  value: tfstatestgdev001        # Storage Account Name
 - name: containername
-  value: tfstate
+  value: tfstate                 # Blob container for state
 - name: statefile
-  value: dev.terraform.tfstate
+  value: dev.terraform.tfstate   # State filename
 - name: workingDir
   value: $(System.DefaultWorkingDirectory)/Practice_Infra_LandingZone/envs/dev
 
 stages:
 
-# ---------------------------------------------------
-# BUILD STAGE – INIT, VALIDATE, PLAN, SAVE ARTIFACT
-# ---------------------------------------------------
+# ===================================================
+# BUILD STAGE – INIT, VALIDATE, PLAN
+# ===================================================
 - stage: Build
   displayName: "Terraform Build (Init, Validate, Plan)"
   jobs:
@@ -41,35 +43,36 @@ stages:
       dependsOn: TerraformInstall
       steps:
 
-        # Terraform Init -----------------------------
+        # Terraform Init
         - task: TerraformTaskV4@4
-          displayName: 'Terraform Init'
+          displayName: "Terraform Init"
           inputs:
-            provider: 'azurerm'
-            command: 'init'
-            workingDirectory: '$(workingDir)'
-            backendServiceArm: '$(svc)'
+            provider: azurerm
+            command: init
+            workingDirectory: "$(workingDir)"
+            backendServiceArm: "$(svc)"
             ensureBackend: true
-            backendAzureRmStorageAccountName: '$(stgname)'
-            backendAzureRmContainerName: '$(containername)'
-            backendAzureRmKey: '$(statefile)'
+            backendAzureRmResourceGroupName: "$(backendRg)"
+            backendAzureRmStorageAccountName: "$(stgname)"
+            backendAzureRmContainerName: "$(containername)"
+            backendAzureRmKey: "$(statefile)"
 
-        # Terraform Validate --------------------------
+        # Terraform Validate
         - task: TerraformTaskV4@4
           displayName: "Terraform Validate"
           inputs:
             provider: azurerm
             command: validate
-            workingDirectory: '$(workingDir)'
+            workingDirectory: "$(workingDir)"
 
-        # Terraform Plan -------------------------------
+        # Terraform Plan
         - task: TerraformTaskV4@4
           displayName: "Terraform Plan"
           inputs:
             provider: azurerm
             command: plan
-            workingDirectory: '$(workingDir)'
-            environmentServiceNameAzureRM: '$(svc)'
+            workingDirectory: "$(workingDir)"
+            environmentServiceNameAzureRM: "$(svc)"
             commandOptions: >
               -input=false
               -var "vm_username=$(vm_username)"
@@ -77,65 +80,63 @@ stages:
               -var "sql_username=$(sql_username)"
               -var "sql_password=$(sql_password)"
               -out=tfplan
-              -lock-timeout=120s
               -detailed-exitcode
+              -lock-timeout=120s
 
-        # Publish Plan Artifact ------------------------
+        # Publish Plan Artifact
         - publish: $(workingDir)/tfplan
           artifact: tfplan-artifact
           displayName: "Publish Terraform Plan Artifact"
 
-
-# ---------------------------------------------------
-# RELEASE STAGE – MANUAL APPROVAL → APPLY
-# ---------------------------------------------------
+# ===================================================
+# RELEASE STAGE – MANUAL APPROVAL + APPLY
+# ===================================================
 - stage: Release
   displayName: "Terraform Release (Manual Approval + Apply)"
   dependsOn: Build
   jobs:
 
-    # Manual Approval --------------------------------
     - job: ManualValidation
       displayName: "Manual Approval Before Apply"
       pool: server
       steps:
         - task: ManualValidation@1
           inputs:
-            notifyUsers: adhiraaj22@gmail.com
+            notifyUsers: "adhiraaj22@gmail.com"
 
-    # Terraform Apply --------------------------------
     - job: TerraformApply
-      displayName: "Terraform Apply"
+      displayName: Terraform Apply
       dependsOn: ManualValidation
       pool:
         name: practice-pipeline-pool
       steps:
 
+        # Download Plan Artifact
         - download: current
           artifact: tfplan-artifact
-          displayName: "Download Terraform Plan Artifact"
 
-        # Terraform Init ------------------------------
+        # Terraform Init for Apply
         - task: TerraformTaskV4@4
           displayName: "Terraform Init (Apply Stage)"
           inputs:
             provider: azurerm
             command: init
-            workingDirectory: '$(workingDir)'
-            backendServiceArm: '$(svc)'
+            workingDirectory: "$(workingDir)"
+            backendServiceArm: "$(svc)"
             ensureBackend: true
-            backendAzureRmStorageAccountName: '$(stgname)'
-            backendAzureRmContainerName: '$(containername)'
-            backendAzureRmKey: '$(statefile)'
+            backendAzureRmResourceGroupName: "$(backendRg)"
+            backendAzureRmStorageAccountName: "$(stgname)"
+            backendAzureRmContainerName: "$(containername)"
+            backendAzureRmKey: "$(statefile)"
 
-        # Terraform Apply ------------------------------
+        # Terraform Apply using saved plan
         - task: TerraformTaskV4@4
           displayName: "Terraform Apply"
           inputs:
             provider: azurerm
             command: apply
-            workingDirectory: '$(workingDir)'
-            environmentServiceNameAzureRM: '$(svc)'
+            workingDirectory: "$(workingDir)"
+            environmentServiceNameAzureRM: "$(svc)"
             commandOptions: >
               -input=false
               -auto-approve
