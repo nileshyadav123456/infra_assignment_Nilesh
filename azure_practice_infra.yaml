@@ -8,7 +8,7 @@ variables:
 - name: svc
   value: practice-connection
 - name: workingDir
-  value: Practice_Infra_LandingZone/envs/dev
+  value: $(System.DefaultWorkingDirectory)/azure_practice_infra/Practice_Infra_LandingZone/envs/dev
 - name: backendRg
   value: practice-rg-001
 - name: stgname
@@ -30,6 +30,7 @@ stages:
       name: practice-pipeline-pool
       demands:
       - Agent.Name -equals practice-agent
+
     steps:
 
     - task: TerraformInstaller@1
@@ -37,7 +38,7 @@ stages:
       inputs:
         terraformVersion: latest
 
-    - task: TerraformTaskV4@4
+    - task: TerraformTaskV3@3
       displayName: "Terraform Init"
       inputs:
         provider: azurerm
@@ -50,14 +51,14 @@ stages:
         backendAzureRmContainerName: "$(containername)"
         backendAzureRmKey: "$(statefile)"
 
-    - task: TerraformTaskV4@4
+    - task: TerraformTaskV3@3
       displayName: "Terraform Validate"
       inputs:
         provider: azurerm
         command: validate
         workingDirectory: "$(workingDir)"
 
-    - task: TerraformTaskV4@4
+    - task: TerraformTaskV3@3
       displayName: "Terraform Plan"
       inputs:
         provider: azurerm
@@ -101,6 +102,7 @@ stages:
       name: practice-pipeline-pool
       demands:
       - Agent.Name -equals practice-agent
+
     steps:
 
     - task: TerraformInstaller@1
@@ -111,7 +113,7 @@ stages:
     - download: current
       artifact: tfplan-artifact
 
-    - task: TerraformTaskV4@4
+    - task: TerraformTaskV3@3
       displayName: "Terraform Init (Apply Stage)"
       inputs:
         provider: azurerm
@@ -124,7 +126,7 @@ stages:
         backendAzureRmContainerName: "$(containername)"
         backendAzureRmKey: "$(statefile)"
 
-    - task: TerraformTaskV4@4
+    - task: TerraformTaskV3@3
       displayName: "Terraform Apply"
       inputs:
         provider: azurerm
