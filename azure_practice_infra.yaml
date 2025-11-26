@@ -8,7 +8,7 @@ variables:
 - name: svc
   value: practice-connection
 - name: workingDir
-  value: $(System.DefaultWorkingDirectory)/azure_practice_infra/Practice_Infra_LandingZone/envs/dev
+  value: $(System.DefaultWorkingDirectory)/azure_practice_infra/envs/dev
 - name: backendRg
   value: practice-rg-001
 - name: stgname
