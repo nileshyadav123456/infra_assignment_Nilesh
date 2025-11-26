@@ -8,40 +8,38 @@ pool:
   name: practice-pipeline-pool
 
 variables:
-- group: terraform-secrets-dev   # Contains vm/sql creds
+- group: terraform-secrets-dev
 - name: svc
-  value: practice-connection     # Azure Service Connection
+  value: practice-connection
 - name: backendRg
-  value: practice-rg-001         # Storage Account RG
+  value: practice-rg-001
 - name: stgname
-  value: tfstatestgdev001        # Storage Account Name
+  value: tfstatestgdev001
 - name: containername
-  value: tfstate                 # Blob container for state
+  value: tfstate
 - name: statefile
-  value: dev.terraform.tfstate   # State filename
+  value: dev.terraform.tfstate
 - name: workingDir
   value: $(System.DefaultWorkingDirectory)/Practice_Infra_LandingZone/envs/dev
 
 stages:
 
-# ===================================================
-# BUILD STAGE – INIT, VALIDATE, PLAN
-# ===================================================
+#=================================================
+# BUILD - INIT, VALIDATE, PLAN, PUBLISH ARTIFACT
+#=================================================
 - stage: Build
   displayName: "Terraform Build (Init, Validate, Plan)"
   jobs:
 
-    - job: TerraformInstall
-      displayName: Terraform Install
-      steps:
-        - task: TerraformInstaller@1
-          inputs:
-            terraformVersion: latest
-
     - job: TerraformPlanJob
       displayName: Terraform Init, Validate & Plan
-      dependsOn: TerraformInstall
       steps:
+
+        # Terraform Install
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
+          inputs:
+            terraformVersion: latest
 
         # Terraform Init
         - task: TerraformTaskV4@4
@@ -83,14 +81,15 @@ stages:
               -detailed-exitcode
               -lock-timeout=120s
 
-        # Publish Plan Artifact
+        # Publish plan artifact
         - publish: $(workingDir)/tfplan
           artifact: tfplan-artifact
           displayName: "Publish Terraform Plan Artifact"
 
-# ===================================================
-# RELEASE STAGE – MANUAL APPROVAL + APPLY
-# ===================================================
+
+#=================================================
+# RELEASE - MANUAL APPROVAL + APPLY
+#=================================================
 - stage: Release
   displayName: "Terraform Release (Manual Approval + Apply)"
   dependsOn: Build
@@ -105,17 +104,23 @@ stages:
             notifyUsers: "adhiraaj22@gmail.com"
 
     - job: TerraformApply
-      displayName: Terraform Apply
+      displayName: "Terraform Apply"
       dependsOn: ManualValidation
       pool:
         name: practice-pipeline-pool
       steps:
 
-        # Download Plan Artifact
+        # Install Terraform again
+        - task: TerraformInstaller@1
+          displayName: "Install Terraform"
+          inputs:
+            terraformVersion: latest
+
+        # Download artifact
         - download: current
           artifact: tfplan-artifact
 
-        # Terraform Init for Apply
+        # Terraform Init
         - task: TerraformTaskV4@4
           displayName: "Terraform Init (Apply Stage)"
           inputs:
@@ -129,7 +134,7 @@ stages:
             backendAzureRmContainerName: "$(containername)"
             backendAzureRmKey: "$(statefile)"
 
-        # Terraform Apply using saved plan
+        # Terraform Apply
         - task: TerraformTaskV4@4
           displayName: "Terraform Apply"
           inputs:
@@ -140,8 +145,3 @@ stages:
             commandOptions: >
               -input=false
               -auto-approve
-              -var "vm_username=$(vm_username)"
-              -var "vm_password=$(vm_password)"
-              -var "sql_username=$(sql_username)"
-              -var "sql_password=$(sql_password)"
-              tfplan
