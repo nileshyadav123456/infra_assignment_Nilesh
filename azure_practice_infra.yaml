@@ -8,7 +8,7 @@ variables:
 - name: svc
   value: practice-connection
 - name: workingDir
-  value: $(System.DefaultWorkingDirectory)/azure_practice_infra/envs/dev
+  value: $(Build.SourcesDirectory)/Practice_Infra_LandingZone/envs/dev
 - name: backendRg
   value: practice-rg-001
 - name: stgname
@@ -20,26 +20,20 @@ variables:
 
 stages:
 
-# =================== BUILD (Self Hosted) ===================
+# =================== BUILD STAGE ===================
 - stage: Build
-  displayName: "Build: Init + Validate + Plan"
+  displayName: "Build Stage: Init, Validate, Plan"
   jobs:
-  - job: TerraformBuild
-    displayName: "Terraform Build"
+
+  - job: InitJob
+    displayName: "Terraform Init"
     pool:
       name: practice-pipeline-pool
-      demands:
-      - Agent.Name -equals practice-agent
-
     steps:
-
-    - task: TerraformInstaller@1
-      displayName: "Install Terraform"
-      inputs:
-        terraformVersion: latest
+    - script: terraform version
+      displayName: "Check Terraform Version"
 
     - task: TerraformTaskV3@3
-      displayName: "Terraform Init"
       inputs:
         provider: azurerm
         command: init
@@ -51,15 +45,26 @@ stages:
         backendAzureRmContainerName: "$(containername)"
         backendAzureRmKey: "$(statefile)"
 
+  - job: ValidateJob
+    displayName: "Terraform Validate"
+    dependsOn: InitJob
+    pool:
+      name: practice-pipeline-pool
+    steps:
     - task: TerraformTaskV3@3
-      displayName: "Terraform Validate"
       inputs:
         provider: azurerm
         command: validate
         workingDirectory: "$(workingDir)"
 
+  - job: PlanJob
+    displayName: "Terraform Plan"
+    dependsOn: ValidateJob
+    pool:
+      name: practice-pipeline-pool
+    steps:
+
     - task: TerraformTaskV3@3
-      displayName: "Terraform Plan"
       inputs:
         provider: azurerm
         command: plan
@@ -67,77 +72,44 @@ stages:
         environmentServiceNameAzureRM: "$(svc)"
         commandOptions: >
           -input=false
-          -var "vm_username=$(vm_username)"
-          -var "vm_password=$(vm_password)"
-          -var "sql_username=$(sql_username)"
-          -var "sql_password=$(sql_password)"
           -out=tfplan
           -lock-timeout=120s
 
     - publish: $(workingDir)/tfplan
       artifact: tfplan-artifact
+      displayName: "Publish Terraform Plan"
 
 
-# =================== RELEASE (Hosted + Self Hosted) ===================
+# =================== RELEASE STAGE ===================
 - stage: Release
-  displayName: "Release: Approval → Apply"
+  displayName: "Release Stage: Approval -> Apply"
   dependsOn: Build
   jobs:
 
-  # Hosted for Manual Approval only
   - job: ManualApproval
     displayName: "Manual Validation"
     pool: server
     steps:
     - task: ManualValidation@1
       inputs:
-        instructions: "Approve to deploy infra"
+        instructions: "Approve this Terraform deployment"
         notifyUsers: "adhiraaj22@gmail.com"
 
-  # Self-hosted for Apply
-  - job: TerraformApplyJob
+  - job: ApplyJob
     displayName: "Terraform Apply"
     dependsOn: ManualApproval
     pool:
       name: practice-pipeline-pool
-      demands:
-      - Agent.Name -equals practice-agent
-
     steps:
-
-    - task: TerraformInstaller@1
-      displayName: "Install Terraform"
-      inputs:
-        terraformVersion: latest
 
     - download: current
       artifact: tfplan-artifact
+      displayName: "Download Plan"
 
-    - task: TerraformTaskV3@3
+    - script: terraform init -input=false
+      workingDirectory: "$(workingDir)"
       displayName: "Terraform Init (Apply Stage)"
-      inputs:
-        provider: azurerm
-        command: init
-        workingDirectory: "$(workingDir)"
-        backendServiceArm: "$(svc)"
-        ensureBackend: true
-        backendAzureRmResourceGroupName: "$(backendRg)"
-        backendAzureRmStorageAccountName: "$(stgname)"
-        backendAzureRmContainerName: "$(containername)"
-        backendAzureRmKey: "$(statefile)"
 
-    - task: TerraformTaskV3@3
+    - script: terraform apply -input=false -auto-approve tfplan
+      workingDirectory: "$(workingDir)"
       displayName: "Terraform Apply"
-      inputs:
-        provider: azurerm
-        command: apply
-        workingDirectory: "$(workingDir)"
-        environmentServiceNameAzureRM: "$(svc)"
-        commandOptions: >
-          -input=false
-          -auto-approve
-          -var "vm_username=$(vm_username)"
-          -var "vm_password=$(vm_password)"
-          -var "sql_username=$(sql_username)"
-          -var "sql_password=$(sql_password)"
-          tfplan
