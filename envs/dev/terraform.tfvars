@@ -62,6 +62,12 @@ key_vault = {
   }
 }
 
+vm_username  = "devadmin"
+vm_password  = "DevAdmin$224093"
+sql_username = "sqladmin"
+sql_password = "SqlAdmin$224093"
+
+
 vms = {
   vm001 = {
     nic_name    = "nic-f-vm-001"
@@ -101,10 +107,10 @@ vms = {
 
 sql_servers = {
   sql_server001 = {
-    name                = "sql-server-dev-001"
-    rg_name             = "rg-dev-001"
-    location            = "centralindia"
-    kv_name             = "kv001"
+    name     = "sql-server-dev-001"
+    rg_name  = "rg-dev-001"
+    location = "centralindia"
+    kv_name  = "kv001"
     tags = {
       env = "dev"
     }
