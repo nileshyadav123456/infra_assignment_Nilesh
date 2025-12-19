@@ -1,7 +1,7 @@
 rgs = {
   rg001 = {
     name       = "rg-dev-001"
-    location   = "centralindia"
+    location   = "central india"
     managed_by = "Terraform"
     tags = {
       env = "dev"
@@ -12,7 +12,7 @@ rgs = {
 network = {
   vnet001 = {
     name          = "vnet-dev-001"
-    location      = "centralindia"
+    location      = "central india"
     rg_name       = "rg-dev-001"
     address_space = ["10.0.0.0/16"]
     tags = {
@@ -35,7 +35,7 @@ public_ips = {
   pip001 = {
     name                = "pip-dev-001"
     resource_group_name = "rg-dev-001"
-    location            = "centralindia"
+    location            = "central india"
     allocation_method   = "Static"
     tags = {
       app = "frontend"
@@ -57,15 +57,21 @@ public_ips = {
 key_vault = {
   kv001 = {
     kv_name  = "kv-dev-mowgli-001"
-    location = "centralindia"
+    location = "central india"
     rg_name  = "rg-dev-001"
   }
 }
 
+vm_username  = "vmUserDev01"
+vm_password  = "Dev$VM2025#Mowgli"
+sql_username = "sqlUserDev01"
+sql_password = "Dev$SQL2025#Mowgli"
+
+
 vms = {
   vm001 = {
     nic_name    = "nic-f-vm-001"
-    location    = "centralindia"
+    location    = "central india"
     rg_name     = "rg-dev-001"
     vnet_name   = "vnet-dev-001"
     subnet_name = "f-subnet001"
@@ -82,7 +88,7 @@ vms = {
   }
   vm002 = {
     nic_name    = "nic-b-vm-002"
-    location    = "centralindia"
+    location    = "central india"
     rg_name     = "rg-dev-001"
     vnet_name   = "vnet-dev-001"
     subnet_name = "b-subnet001"
@@ -101,10 +107,10 @@ vms = {
 
 sql_servers = {
   sql_server001 = {
-    name                = "sql-server-dev-001"
-    rg_name             = "rg-dev-001"
-    location            = "centralindia"
-    kv_name             = "kv001"
+    name     = "sql-server-infradev-001"
+    rg_name  = "rg-dev-001"
+    location = "central india"
+    kv_name  = "kv001"
     tags = {
       env = "dev"
     }
@@ -113,7 +119,7 @@ sql_servers = {
 
 sql_database = {
   sql_database001 = {
-    name         = "sql-database-dev-001"
+    name         = "sql-database-infradev-001"
     collation    = "SQL_Latin1_General_CP1_CI_AS"
     license_type = "LicenseIncluded"
     max_size_gb  = 2
@@ -129,7 +135,7 @@ sql_database = {
 stas = {
   sta001 = {
     name                     = "stastatemowgli"
-    location                 = "centralindia"
+    location                 = "central india"
     rg_name                  = "rg-dev-001"
     account_tier             = "Standard"
     account_replication_type = "GRS"
