@@ -1,22 +1,22 @@
 rgs = {
   rg001 = {
-    name       = "rg-dev-001"
-    location   = "central india"
+    name       = "rg-nilesh-001"
+    location   = "south india"
     managed_by = "Terraform"
     tags = {
-      env = "dev"
+      env = "nilesh"
     }
   }
 }
 
 network = {
   vnet001 = {
-    name          = "vnet-dev-001"
-    location      = "central india"
-    rg_name       = "rg-dev-001"
+    name          = "vnet-nilesh-001"
+    location      = "south india"
+    rg_name       = "rg-nilesh-001"
     address_space = ["10.0.0.0/16"]
     tags = {
-      env = "dev"
+      env = "nilesh"
     }
     subnets = [
       {
@@ -33,49 +33,49 @@ network = {
 
 public_ips = {
   pip001 = {
-    name                = "pip-dev-001"
-    resource_group_name = "rg-dev-001"
-    location            = "central india"
+    name                = "pip-nilesh-001"
+    resource_group_name = "rg-nilesh-001"
+    location            = "south india"
     allocation_method   = "Static"
     tags = {
       app = "frontend"
-      env = "dev"
+      env = "nilesh"
     }
   }
   pip002 = {
-    name                = "pip-dev-002"
-    resource_group_name = "rg-dev-001"
-    location            = "centralindia"
+    name                = "pip-nilesh-002"
+    resource_group_name = "rg-nilesh-001"
+    location            = "southindia"
     allocation_method   = "Static"
     tags = {
       app = "backend"
-      env = "dev"
+      env = "nilesh"
     }
   }
 }
 
 key_vault = {
   kv001 = {
-    kv_name  = "kv-dev-mowgli-001"
-    location = "central india"
-    rg_name  = "rg-dev-001"
+    kv_name  = "kv-nilesh-mowgli-001"
+    location = "south india"
+    rg_name  = "rg-nilesh-001"
   }
 }
 
-vm_username  = "vmUserDev01"
-vm_password  = "Dev$VM2025#Mowgli"
-sql_username = "sqlUserDev01"
-sql_password = "Dev$SQL2025#Mowgli"
+vm_username  = "vmUsernilesh01"
+vm_password  = "nilesh$VM2025#Mowgli"
+sql_username = "sqlUsernilesh01"
+sql_password = "nilesh$SQL2025#Mowgli"
 
 
 vms = {
   vm001 = {
     nic_name    = "nic-f-vm-001"
-    location    = "central india"
-    rg_name     = "rg-dev-001"
-    vnet_name   = "vnet-dev-001"
+    location    = "south india"
+    rg_name     = "rg-nilesh-001"
+    vnet_name   = "vnet-nilesh-001"
     subnet_name = "f-subnet001"
-    pip_name    = "pip-dev-001"
+    pip_name    = "pip-nilesh-001"
     vm_name     = "f-vm-001"
     size        = "Standard_F2"
     kv_name     = "kv001"
@@ -88,11 +88,11 @@ vms = {
   }
   vm002 = {
     nic_name    = "nic-b-vm-002"
-    location    = "central india"
-    rg_name     = "rg-dev-001"
-    vnet_name   = "vnet-dev-001"
+    location    = "south india"
+    rg_name     = "rg-nilesh-001"
+    vnet_name   = "vnet-nilesh-001"
     subnet_name = "b-subnet001"
-    pip_name    = "pip-dev-002"
+    pip_name    = "pip-nilesh-002"
     vm_name     = "b-vm-001"
     size        = "Standard_F2"
     kv_name     = "kv001"
@@ -107,26 +107,26 @@ vms = {
 
 sql_servers = {
   sql_server001 = {
-    name     = "sql-server-infradev-001"
-    rg_name  = "rg-dev-001"
-    location = "central india"
+    name     = "sql-server-infranilesh-001"
+    rg_name  = "rg-nilesh-001"
+    location = "south india"
     kv_name  = "kv001"
     tags = {
-      env = "dev"
+      env = "nilesh"
     }
   }
 }
 
 sql_database = {
   sql_database001 = {
-    name         = "sql-database-infradev-001"
+    name         = "sql-database-infranilesh-001"
     collation    = "SQL_Latin1_General_CP1_CI_AS"
     license_type = "LicenseIncluded"
     max_size_gb  = 2
     sku_name     = "S0"
     enclave_type = "VBS"
     tags = {
-      env = "dev"
+      env = "nilesh"
     }
     server_id = ""
   }
@@ -135,12 +135,12 @@ sql_database = {
 stas = {
   sta001 = {
     name                     = "stastatemowgli"
-    location                 = "central india"
-    rg_name                  = "rg-dev-001"
+    location                 = "south india"
+    rg_name                  = "rg-nilesh-001"
     account_tier             = "Standard"
     account_replication_type = "GRS"
     tags = {
-      env = "dev"
+      env = "nilesh"
     }
   }
 }
